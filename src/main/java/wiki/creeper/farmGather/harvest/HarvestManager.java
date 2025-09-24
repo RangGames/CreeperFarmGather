@@ -78,6 +78,9 @@ public class HarvestManager {
             return HarvestResult.failure(HarvestResult.FailReason.INVALID_TOOL);
         }
 
+        ItemStack toolSnapshot = tool.clone();
+        String hoeUid = ItemUtil.readUid(tool, plugin).orElse(null);
+
         if (!harvestWorlds.contains(block.getWorld().getName())) {
             sendNotification(player, config.notifications().harvestDenied());
             return HarvestResult.failure(HarvestResult.FailReason.WRONG_WORLD);
@@ -164,6 +167,8 @@ public class HarvestManager {
                 player,
                 profile,
                 block,
+                toolSnapshot,
+                hoeUid,
                 comboCount,
                 comboWindowSeconds,
                 xpBonusPercent,
@@ -183,6 +188,8 @@ public class HarvestManager {
             profile.setLastBlockType(previousBlockType);
             return HarvestResult.failure(HarvestResult.FailReason.CANCELLED);
         }
+
+        applyHoeMutations(player, harvestEvent);
 
         comboCount = harvestEvent.getComboCount();
         comboWindowSeconds = harvestEvent.getComboWindowSeconds();
@@ -229,6 +236,27 @@ public class HarvestManager {
                 finalDrops,
                 levelUpResult
         );
+    }
+
+    private void applyHoeMutations(Player player, FarmGatherHarvestEvent event) {
+        ItemStack replacement = event.getTool();
+        String requestedUid = event.getHoeUid();
+        if (replacement != null) {
+            ItemStack clone = replacement.clone();
+            ItemUtil.ensureUid(clone, plugin);
+            ItemUtil.ensureOwner(clone, player.getUniqueId(), plugin);
+            if (requestedUid != null && !requestedUid.isBlank()) {
+                ItemUtil.setUid(clone, plugin, requestedUid);
+            }
+            player.getInventory().setItemInMainHand(clone);
+            return;
+        }
+        if (requestedUid != null && !requestedUid.isBlank()) {
+            ItemStack mainHand = player.getInventory().getItemInMainHand();
+            if (mainHand != null && !mainHand.getType().isAir()) {
+                ItemUtil.setUid(mainHand, plugin, requestedUid);
+            }
+        }
     }
 
     private boolean computeExtraDrop(int level, int combo) {

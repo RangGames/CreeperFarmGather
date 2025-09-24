@@ -2,6 +2,8 @@ name: ${project.name}
 version: '${project.version}'
 main: wiki.creeper.farmGather.FarmGather
 api-version: '1.21'
+softdepend:
+  - ProtocolLib
 commands:
   fg:
     description: FarmGather administration command

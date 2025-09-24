@@ -143,8 +143,11 @@ world:
 ui:
   bossbar:
     enabled: true
+    mode: COOLDOWN_THEN_COMBO
     color_by_combo: true
-  actionbar_fallback: true
+    title_format: "&e{combo}콤보 [&a+{bonus}%보너스] &a{cur}&7/&a{next}&a [+{gain}경험치]"
+  actionbar:
+    enabled: false
   sounds:
     combo_5: "block.note_block.pling"
     combo_10: "entity.player.levelup"

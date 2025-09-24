@@ -56,7 +56,7 @@ public class WorldRuleListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         if (inRestrictedWorld(event.getBlock().getWorld())) {
             event.setCancelled(true);
-            event.getPlayer().sendActionBar(Text.colorize("&c이 월드에서는 블록을 설치할 수 없습니다."));
+            event.getPlayer().sendMessage(Text.colorize("&c이 월드에서는 블록을 설치할 수 없습니다."));
         }
     }
 
@@ -121,7 +121,7 @@ public class WorldRuleListener implements Listener {
     public void onVehicleEnter(VehicleEnterEvent event) {
         if (event.getEntered() instanceof org.bukkit.entity.Player player && inRestrictedWorld(event.getVehicle().getWorld())) {
             event.setCancelled(true);
-            player.sendActionBar(Text.colorize("&c채집 월드에서는 탈것을 이용할 수 없습니다."));
+            player.sendMessage(Text.colorize("&c채집 월드에서는 탈것을 이용할 수 없습니다."));
         }
     }
 

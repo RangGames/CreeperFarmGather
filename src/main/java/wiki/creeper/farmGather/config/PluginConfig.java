@@ -320,10 +320,20 @@ public class PluginConfig {
 
     public record UiConfig(
             BossBarConfig bossbar,
-            boolean actionbarFallback,
+            ActionBarConfig actionbar,
             Map<String, String> sounds
     ) {
-        public record BossBarConfig(boolean enabled, boolean colorByCombo) {}
+        public record BossBarConfig(boolean enabled,
+                                     BossBarMode mode,
+                                     boolean colorByCombo,
+                                     String titleFormat) {
+            public enum BossBarMode {
+                COMBO_ONLY,
+                COOLDOWN_THEN_COMBO
+            }
+        }
+
+        public record ActionBarConfig(boolean enabled) {}
     }
 
     public record ItemIdentityConfig(

@@ -4,11 +4,13 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 import wiki.creeper.farmGather.FarmGather;
 import wiki.creeper.farmGather.harvest.HarvestManager;
+import wiki.creeper.farmGather.item.ItemIdentityService;
 import wiki.creeper.farmGather.player.PlayerProfile;
 import wiki.creeper.farmGather.player.ProfileManager;
 import wiki.creeper.farmGather.progression.ComboService;
 import wiki.creeper.farmGather.progression.ProgressionService;
 import wiki.creeper.farmGather.skills.SkillManager;
+import wiki.creeper.farmGather.ui.CooldownUiService;
 
 public final class FarmGatherAPI {
     private static FarmGather plugin;
@@ -66,6 +68,16 @@ public final class FarmGatherAPI {
     public static SkillManager skills() {
         ensureReady();
         return plugin.getSkillManager();
+    }
+
+    public static ItemIdentityService identity() {
+        ensureReady();
+        return plugin.getItemIdentityService();
+    }
+
+    public static CooldownUiService cooldownUi() {
+        ensureReady();
+        return plugin.getCooldownUiService();
     }
 
     private static void ensureReady() {

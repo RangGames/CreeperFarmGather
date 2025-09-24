@@ -30,6 +30,7 @@ import wiki.creeper.farmGather.storage.HybridPlayerDataStore;
 import wiki.creeper.farmGather.storage.PlayerDataStore;
 import wiki.creeper.farmGather.storage.RedisPlayerDataStore;
 import wiki.creeper.farmGather.ui.ComboBossBarService;
+import wiki.creeper.farmGather.ui.CooldownUiService;
 import wiki.creeper.farmGather.world.WorldResetService;
 import wiki.creeper.farmGather.world.WorldRuleListener;
 
@@ -48,6 +49,7 @@ public final class FarmGather extends JavaPlugin {
     private ComboBossBarService comboBossBarService;
     private WorldResetService worldResetService;
     private ItemIdentityService itemIdentityService;
+    private CooldownUiService cooldownUiService;
 
     @Override
     public void onEnable() {
@@ -73,6 +75,9 @@ public final class FarmGather extends JavaPlugin {
         }
         if (comboBossBarService != null) {
             comboBossBarService.stop();
+        }
+        if (cooldownUiService != null) {
+            cooldownUiService.stop();
         }
         if (playerDataStore != null) {
             playerDataStore.close().join();
@@ -221,6 +226,8 @@ public final class FarmGather extends JavaPlugin {
         this.worldRuleListener = new WorldRuleListener(this);
         this.worldResetService = new WorldResetService(this, pluginConfig.world());
         this.itemIdentityService = new ItemIdentityService(this, pluginConfig.itemIdentity());
+        this.cooldownUiService = new CooldownUiService(this, skillManager, pluginConfig.cooldownUi());
+        this.cooldownUiService.start();
     }
 
     private void registerListeners() {
@@ -229,6 +236,7 @@ public final class FarmGather extends JavaPlugin {
         registerListener(skillManager);
         registerListener(worldRuleListener);
         registerListener(itemIdentityService);
+        registerListener(cooldownUiService);
     }
 
     private void registerCommands() {
@@ -270,6 +278,7 @@ public final class FarmGather extends JavaPlugin {
         worldResetService.reload(pluginConfig.world());
         itemIdentityService.reload(pluginConfig.itemIdentity());
         getServer().getOnlinePlayers().forEach(player -> itemIdentityService.ensureInventoryTagged(player));
+        cooldownUiService.reload(pluginConfig.cooldownUi());
     }
 
     private void registerListener(Listener listener) {
@@ -294,5 +303,9 @@ public final class FarmGather extends JavaPlugin {
 
     public ItemIdentityService getItemIdentityService() {
         return itemIdentityService;
+    }
+
+    public CooldownUiService getCooldownUiService() {
+        return cooldownUiService;
     }
 }

@@ -204,13 +204,30 @@ public class ConfigManager {
 
     private PluginConfig.UiConfig parseUi(ConfigurationSection section) {
         ConfigurationSection bossbarSection = getSection(section, "bossbar");
+        boolean bossbarEnabled = bossbarSection.getBoolean("enabled");
+        String modeValue = bossbarSection.getString("mode", "COMBO_ONLY");
+        PluginConfig.UiConfig.BossBarConfig.BossBarMode bossBarMode;
+        try {
+            bossBarMode = PluginConfig.UiConfig.BossBarConfig.BossBarMode.valueOf(modeValue.toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            throw new PluginConfig.ConfigLoadException("Unknown bossbar mode: " + modeValue, ex);
+        }
+        boolean colorByCombo = bossbarSection.getBoolean("color_by_combo", true);
+        String titleFormat = bossbarSection.getString("title_format", "&e{combo}콤보 [&a+{bonus}%] &a{cur}&7/&a{next} &a[+{gain}경험치]");
         PluginConfig.UiConfig.BossBarConfig bossBarConfig = new PluginConfig.UiConfig.BossBarConfig(
-                bossbarSection.getBoolean("enabled"),
-                bossbarSection.getBoolean("color_by_combo")
+                bossbarEnabled,
+                bossBarMode,
+                colorByCombo,
+                titleFormat
         );
-        boolean actionbarFallback = section.getBoolean("actionbar_fallback");
+
+        ConfigurationSection actionbarSection = section.getConfigurationSection("actionbar");
+        PluginConfig.UiConfig.ActionBarConfig actionBarConfig = new PluginConfig.UiConfig.ActionBarConfig(
+                actionbarSection != null && actionbarSection.getBoolean("enabled", false)
+        );
+
         Map<String, Object> rawSounds = getSection(section, "sounds").getValues(false);
-        return new PluginConfig.UiConfig(bossBarConfig, actionbarFallback, rawSounds.entrySet().stream()
+        return new PluginConfig.UiConfig(bossBarConfig, actionBarConfig, rawSounds.entrySet().stream()
                 .collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, entry -> String.valueOf(entry.getValue()))));
     }
 

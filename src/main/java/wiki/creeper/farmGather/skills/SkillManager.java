@@ -114,18 +114,18 @@ public class SkillManager implements Listener {
     }
 
     private void handleFocus(Player player, PlayerProfile profile, HoeSkill skill) {
-        PlayerSkillState state = states.computeIfAbsent(player.getUniqueId(), uuid -> new PlayerSkillState());
+        PlayerSkillState state = stateFor(player.getUniqueId());
         long now = System.currentTimeMillis();
         long cooldownEnd = state.getCooldownEnd(HoeSkillType.FOCUS);
         if (now < cooldownEnd) {
             long remaining = cooldownEnd - now;
-            player.sendActionBar(Text.colorize("&c" + (remaining / 1000 + 1) + "초 후 사용 가능"));
+            player.sendMessage(Text.colorize("&c" + (remaining / 1000 + 1) + "초 후 사용 가능합니다."));
             return;
         }
 
         double energyCost = config.focus().energyCost();
         if (profile.getEnergy() < energyCost) {
-            player.sendActionBar(Text.colorize(plugin.getPluginConfig().notifications().energyMissing()));
+            player.sendMessage(Text.colorize(plugin.getPluginConfig().notifications().energyMissing()));
             return;
         }
 
@@ -137,10 +137,9 @@ public class SkillManager implements Listener {
         state.setFocusActiveUntil(focusUntil);
         profile.setComboOverride(3.0, focusUntil);
 
-        long cooldownMillis = (long) (config.focus().cooldown() * 1000);
-        state.setCooldownEnd(HoeSkillType.FOCUS, now + cooldownMillis);
+        beginCooldown(player, HoeSkillType.FOCUS, config.focus().cooldown());
 
-        player.sendActionBar(Text.colorize("&b집중 스킬 발동!"));
+        player.sendMessage(Text.colorize("&b집중 스킬을 발동했습니다!"));
     }
 
     private void tickEnergy() {
@@ -166,5 +165,65 @@ public class SkillManager implements Listener {
             profile.setEnergy(next);
             profile.setLastEnergyTick(now);
         }
+    }
+
+    public Map<HoeSkillType, Double> snapshotCooldowns(Player player) {
+        PlayerSkillState state = states.get(player.getUniqueId());
+        if (state == null) {
+            return java.util.Collections.emptyMap();
+        }
+        long now = System.currentTimeMillis();
+        Map<HoeSkillType, Double> result = new java.util.EnumMap<>(HoeSkillType.class);
+        for (var entry : state.snapshotCooldowns().entrySet()) {
+            long end = entry.getValue();
+            double remaining = Math.max(0, (end - now) / 1000.0);
+            result.put(entry.getKey(), remaining);
+        }
+        return result;
+    }
+
+    public double getCooldownSeconds(Player player, HoeSkillType type) {
+        PlayerSkillState state = states.get(player.getUniqueId());
+        if (state == null) {
+            return 0.0;
+        }
+        long now = System.currentTimeMillis();
+        long end = state.getCooldownEnd(type);
+        if (end <= now) {
+            return 0.0;
+        }
+        return (end - now) / 1000.0;
+    }
+
+    public void beginCooldown(Player player, HoeSkillType type, double cooldownSeconds) {
+        if (player == null || type == null) {
+            return;
+        }
+        PlayerSkillState state = stateFor(player.getUniqueId());
+        long now = System.currentTimeMillis();
+        long durationMillis = cooldownSeconds <= 0 ? 0 : (long) Math.ceil(cooldownSeconds * 1000.0);
+        state.setCooldownEnd(type, now + durationMillis);
+    }
+
+    public void beginCooldown(Player player, HoeSkillType type, long cooldownMillis) {
+        if (cooldownMillis <= 0) {
+            beginCooldown(player, type, 0.0);
+            return;
+        }
+        beginCooldown(player, type, cooldownMillis / 1000.0);
+    }
+
+    public void clearCooldown(Player player, HoeSkillType type) {
+        if (player == null || type == null) {
+            return;
+        }
+        PlayerSkillState state = states.get(player.getUniqueId());
+        if (state != null) {
+            state.setCooldownEnd(type, 0L);
+        }
+    }
+
+    private PlayerSkillState stateFor(UUID uuid) {
+        return states.computeIfAbsent(uuid, key -> new PlayerSkillState());
     }
 }

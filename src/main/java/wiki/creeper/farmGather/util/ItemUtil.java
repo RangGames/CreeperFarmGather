@@ -22,6 +22,7 @@ public final class ItemUtil {
     private static final String OWNER_TAG = "owner";
     private static final String HOE_SKILL_TYPE_TAG = "hoe_skill_type";
     private static final String HOE_SKILL_LEVEL_TAG = "hoe_skill_level";
+    private static final String HUD_TOKEN_TAG = "hud_token";
 
     private ItemUtil() {
     }
@@ -157,6 +158,44 @@ public final class ItemUtil {
         PersistentDataContainer container = meta.getPersistentDataContainer();
         maybeSetOwner(container, owner, plugin);
         item.setItemMeta(meta);
+    }
+
+    public static void setUid(ItemStack item, FarmGather plugin, String uid) {
+        if (item == null || uid == null || uid.isBlank()) {
+            return;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+        meta.getPersistentDataContainer().set(key(plugin, UID_TAG), PersistentDataType.STRING, uid);
+        item.setItemMeta(meta);
+    }
+
+    public static void markHudToken(ItemStack item, FarmGather plugin) {
+        if (item == null) {
+            return;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        container.set(key(plugin, HUD_TOKEN_TAG), PersistentDataType.BYTE, (byte) 1);
+        ensureUidTag(container, plugin);
+        item.setItemMeta(meta);
+    }
+
+    public static boolean isHudToken(ItemStack item, FarmGather plugin) {
+        if (item == null) {
+            return false;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return false;
+        }
+        Byte value = meta.getPersistentDataContainer().get(key(plugin, HUD_TOKEN_TAG), PersistentDataType.BYTE);
+        return value != null && value == 1;
     }
 
     private static String localizeSkill(HoeSkillType type) {

@@ -1,5 +1,6 @@
 package wiki.creeper.farmGather.skills;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import wiki.creeper.farmGather.player.HoeSkillType;
@@ -22,5 +23,9 @@ class PlayerSkillState {
 
     public void setFocusActiveUntil(long focusActiveUntil) {
         this.focusActiveUntil = focusActiveUntil;
+    }
+
+    public Map<HoeSkillType, Long> snapshotCooldowns() {
+        return Collections.unmodifiableMap(new EnumMap<>(cooldowns));
     }
 }

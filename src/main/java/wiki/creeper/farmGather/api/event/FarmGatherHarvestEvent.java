@@ -9,6 +9,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import wiki.creeper.farmGather.player.PlayerProfile;
 
 public class FarmGatherHarvestEvent extends PlayerEvent implements Cancellable {
@@ -16,6 +17,8 @@ public class FarmGatherHarvestEvent extends PlayerEvent implements Cancellable {
 
     private final PlayerProfile profile;
     private final Block block;
+    private ItemStack tool;
+    private String hoeUid;
     private int comboCount;
     private double comboWindowSeconds;
     private double xpBonusPercent;
@@ -30,6 +33,8 @@ public class FarmGatherHarvestEvent extends PlayerEvent implements Cancellable {
     public FarmGatherHarvestEvent(@NotNull Player player,
                                   @NotNull PlayerProfile profile,
                                   @NotNull Block block,
+                                  @Nullable ItemStack tool,
+                                  @Nullable String hoeUid,
                                   int comboCount,
                                   double comboWindowSeconds,
                                   double xpBonusPercent,
@@ -42,6 +47,8 @@ public class FarmGatherHarvestEvent extends PlayerEvent implements Cancellable {
         super(player);
         this.profile = profile;
         this.block = block;
+        setTool(tool);
+        this.hoeUid = hoeUid;
         this.comboCount = comboCount;
         this.comboWindowSeconds = comboWindowSeconds;
         this.xpBonusPercent = xpBonusPercent;
@@ -78,6 +85,22 @@ public class FarmGatherHarvestEvent extends PlayerEvent implements Cancellable {
 
     public Block getBlock() {
         return block;
+    }
+
+    public ItemStack getTool() {
+        return tool == null ? null : tool.clone();
+    }
+
+    public void setTool(@Nullable ItemStack tool) {
+        this.tool = tool == null ? null : tool.clone();
+    }
+
+    public String getHoeUid() {
+        return hoeUid;
+    }
+
+    public void setHoeUid(@Nullable String hoeUid) {
+        this.hoeUid = hoeUid;
     }
 
     public int getComboCount() {
