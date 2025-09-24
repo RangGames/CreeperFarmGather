@@ -1,0 +1,15 @@
+name: ${project.name}
+version: '${project.version}'
+main: wiki.creeper.farmGather.FarmGather
+api-version: '1.21'
+commands:
+  fg:
+    description: FarmGather administration command
+    usage: /fg help
+permissions:
+  farmgather.admin:
+    description: FarmGather administrator
+    default: op
+  farmgather.stats:
+    description: Allows viewing personal FarmGather stats
+    default: true

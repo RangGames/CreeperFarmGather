@@ -1,0 +1,176 @@
+storage:
+  type: "MEMORY"           # MYSQL | REDIS | HYBRID | MEMORY
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "farmgather"
+    username: "root"
+    password: "password"
+    params: "useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8"
+    pool:
+      maximum_pool_size: 10
+      minimum_idle: 2
+      connection_timeout_ms: 30000
+      idle_timeout_ms: 600000
+  redis:
+    host: "localhost"
+    port: 6379
+    password: ""
+    database: 0
+    ssl: false
+    timeout_ms: 2000
+
+harvest:
+  worlds:
+    - "gather_world"
+  harvestable_tags:
+    - "#minecraft:small_flowers"
+    - "GRASS"
+    - "TALL_GRASS"
+  action_cooldown_sec: 1.0
+  drop:
+    mode: VIRTUAL
+    ground_merge_radius: 2.5
+    stack_merge_count: 5
+  anti_macro:
+    view_angle_deg: 0
+    max_distance: 4.5
+    jitter_ms: 40
+
+combo:
+  base_window_sec: 2.0
+  per_level_decay_rate: 0.002
+  min_window_sec: 1.5
+  xp_bonus_per_stack: 0.04
+  xp_bonus_cap: 0.40
+  int_rounding_from_stack: 3
+  int_rounding_cap: 3
+
+xp:
+  base_per_harvest: 8
+  guild_bonus:
+    base_chance: 0.40
+    per_member_inc: 0.03
+    chance_cap: 0.50
+    recent_sec: 8
+    require_same_world: true
+    require_distance: true
+    distance: 64
+
+extra_drop:
+  base: 0.015
+  per_combo: 0.007
+  per_level_log2: 0.005
+  hard_cap: 0.12
+  doubletap_multiplies: true
+
+skills:
+  energy:
+    max: 100
+    regen_per_sec: 5
+    regen_if_afk: false
+  sweep:
+    enabled: true
+    size: "5x5"
+    cd_base: 10.0
+    cd_per_level_minus: 1.0
+    energy_cost: 25
+    max_targets: 12
+    xp_first: 8
+    xp_others: 1
+  focus:
+    enabled: true
+    duration_base: 3.0
+    duration_per_level: 1.0
+    cooldown: 30.0
+    energy_cost: 100
+    min_interval_sec: 0.15
+  shears:
+    enabled: true
+    chain_size: "3x3"
+    cooldown: 10.0
+    energy_cost_base: 40
+    energy_cost_per_level_minus: 5
+    max_chain_targets: 12
+    hop_delay_sec: 0.10
+    xp_first: 8
+    xp_others: 1
+  doubletap:
+    enabled: true
+    window_sec: 2.0
+    chance_base: 0.30
+    chance_per_level: 0.05
+
+progression:
+  cap: 150
+  piecewise:
+    - range:
+        - 1
+        - 20
+      scale: 1.0
+      formula: "375 + 50*L + 9*L^2"
+    - range:
+        - 21
+        - 40
+      scale: 3.0
+      formula: "375 + 50*L + 9*L^2"
+    - range:
+        - 41
+        - 99
+      scale: 9.0
+      formula: "375 + 50*L + 9*L^2"
+    - range:
+        - 100
+        - 149
+      scale: 10.0
+      formula: "95375 + 600*(L-100) + 18*(L-100)^2"
+  global_cost_multiplier: 1.0
+
+world:
+  reset:
+    schedule: "MON 00:00"
+    pre_notice_min: 10
+    pre_kick_min: 2
+    teleport_target: "world:0:64:0"
+    pregenerate: false
+    border_radius: 3000
+  command_whitelist:
+    - "/spawn"
+    - "/hub"
+    - "/lobby"
+    - "/fg"
+
+ui:
+  bossbar:
+    enabled: true
+    color_by_combo: true
+  actionbar_fallback: true
+  sounds:
+    combo_5: "block.note_block.pling"
+    combo_10: "entity.player.levelup"
+
+item_identity:
+  enforce_uid: true
+  owner_lock: false
+  prevent_stack: true
+  prevent_merge: true
+
+cooldown_ui:
+  mode: PACKET_COUNT
+  packet:
+    resend_ticks: 2
+    clamp_max: 64
+  hud:
+    slot: 8
+    material: PAPER
+    name: "&e스킬 쿨타임"
+    lore:
+      - "&7남은 시간: &e{sec}s"
+    protect: true
+    show_skill: LONGEST
+
+notifications:
+  harvest_denied: "&c이 월드에서는 채집할 수 없습니다."
+  inventory_full: "&e인벤토리가 가득 찼습니다! 일부 아이템이 지상에 떨어졌습니다."
+  energy_missing: "&c에너지가 부족합니다."
+  cooldown_active: "&c아직 사용할 수 없습니다."
